@@ -77,8 +77,34 @@ async (req, res) => {
     profileFields.social = {};
 
     if(youtube) profileFields.social.youtube = youtube;
+    if(facebook) profileFields.social.facebook = facebook;
+    if(twitter) profileFields.social.twitter = twitter;
+    if(twitter) profileFields.social.twitter = twitter;
+    if(instagram) profileFields.social.instagram = instagram;
+    if(linkedin) profileFields.social.linkedin = linkedin;
 
-    console.log(profileFields.skills);
+    console.log(profileFields.social.twitter);
+
+    try {
+        let profile = await Profile.findOne({ user: req.user.id });
+
+        if(profile) {
+            // Update
+            profile = await Profile.findOneAndUpdate(
+                { user: req.user.id }, 
+                { $set: profileFields },
+                { new: true }
+            );
+
+            return res.json(profile); 
+        }
+
+        // Create
+        profile = new Profile(profileFields);
+    } catch(err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
 
     res.send('Hello');
 
