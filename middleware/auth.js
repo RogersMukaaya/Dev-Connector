@@ -4,7 +4,7 @@ const config = require('config');
 
 // A middleware function is a function that
 // has access to the request and response object/cycle
-// next is function hat we have to run in order to run
+// next is function that we have to run in order to run
 // the next middleware
 
 module.exports = function(req, res, next) {
