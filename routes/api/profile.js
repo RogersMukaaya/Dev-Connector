@@ -172,12 +172,14 @@ router.delete('/', auth, async (req, res) => {
 // @desc.   Delete profile experience
 // @access  Private
 
-router.put('/experience', [auth, [
+router.delete('/experience', [auth, [
     check('title', 'Title is required').not().isEmpty(),
     check('company', 'Company is required').not().isEmpty(),
     check('from', 'From date is required').not().isEmpty()
 
 ]], async (req, res) => {
+    const errors = validationResult(req);
+
     if(!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() })
     }
@@ -209,8 +211,8 @@ router.put('/experience', [auth, [
        await profile.save();
 
         res.json(profile);
-    } catch (err) {
-        console.error(err.message);
+    } catch (error) {
+        console.error(error.message);
         res.status(500).send('Server Error');
     }
 });
