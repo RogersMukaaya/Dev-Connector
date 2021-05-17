@@ -172,7 +172,7 @@ router.delete('/', auth, async (req, res) => {
 // @desc.   Add profile experience
 // @access  Private
 
-router.put('/experience', [auth, [
+router.put('/experiences', [auth, [
     check('title', 'Title is required').not().isEmpty(),
     check('company', 'Company is required').not().isEmpty(),
     check('from', 'From date is required').not().isEmpty()
@@ -257,19 +257,19 @@ router.put('/education', [auth, [
     }
 
     const {
-        title,
-        company,
-        location,
+        school,
+        degree,
+        fieldofstudy,
         from,
         to,
         current,
         description
     } = req.body;
 
-    const newExp = {
-        title,
-        company,
-        location,
+    const newEduc = {
+        school,
+        degree,
+        fieldofstudy,
         from,
         to,
         current,
@@ -278,7 +278,7 @@ router.put('/education', [auth, [
     try {
        const profile = await Profile.findOne({ user: req.user.id });
 
-       profile.experiences.unshift(newExp);
+       profile.education.unshift(newEduc);
 
        await profile.save();
 
@@ -289,19 +289,19 @@ router.put('/education', [auth, [
     }
 });
 
-// @route   DELETE api/profile/experience/:exp_id
-// @desc.   Delete experience from profile
+// @route   DELETE api/profile/education/:educ_id
+// @desc.   Delete education from profile
 // @access  Private
 
-router.delete('/experience/:exp_id', auth, async (req, res) => {
+router.delete('/education/:educ_id', auth, async (req, res) => {
     try {
         const profile = await Profile.findOne({ user: req.user.id });
 
         // Get remove index
-        const removeIndex = profile.experiences.map(item => item.id).indexOf(req.params.exp_id);
+        const removeIndex = profile.education.map(item => item.id).indexOf(req.params.exp_id);
 
         // When you remove the id, the entire object is deleted
-        profile.experiences.splice(removeIndex, 1);
+        profile.education.splice(removeIndex, 1);
 
         await profile.save();
 
