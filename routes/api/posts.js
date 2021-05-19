@@ -70,7 +70,7 @@ router.get('/:id', auth, async (req, res) => {
         res.json(post);
     } catch (error) {
         console.error(error.message);
-        if(err.kind === 'ObjectId') {
+        if(error.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Post not found' });
         }
         res.status(500).send('Server error');
@@ -100,7 +100,7 @@ router.delete ('/:id', auth, async (req, res) => {
         res.json({ msg: 'Post removed' });
     } catch (error) {
         console.error(error.message);
-        if(err.kind === 'ObjectId') {
+        if(error.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Post not found' });
         }
         res.status(500).send('Server error');
@@ -128,7 +128,7 @@ router.put ('/like/:id', auth, async (req, res) => {
         res.json(post.likes);  
     } catch (error) {
         console.error(error.message);
-        if(err.kind === 'ObjectId') {
+        if(error.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Post not found' });
         }
         res.status(500).send('Server error');
@@ -136,7 +136,7 @@ router.put ('/like/:id', auth, async (req, res) => {
 });
 
 // @route   PUT api/posts/unlike/:id
-// @desc.   Like a post
+// @desc.   Unlike a post
 // @access  Private
 
 router.put ('/unlike/:id', auth, async (req, res) => {
@@ -159,9 +159,47 @@ router.put ('/unlike/:id', auth, async (req, res) => {
         res.json(post.likes);  
     } catch (error) {
         console.error(error.message);
-        if(err.kind === 'ObjectId') {
+        if(error.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Post not found' });
         }
+        res.status(500).send('Server error');
+    }
+});
+
+// @route   POST api/posts/comment/:id
+// @desc.   Comment on a post
+// @access  Private
+
+router.post('/comment/:id', [ auth,
+    check('text', 'Text is required').not().isEmpty()
+], 
+async(req, res) => {
+    // Validate the data that is being sent over 
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        const post = await Post.findById(req.params.id);
+
+        // Create new post comment from post schema
+        const newComment = new Post({
+            text: req.body.text,
+            name: user.name,
+            avatar: user.avatar,
+            user: req.user.id
+        });
+
+        post.comments.unshift(newComment);
+
+        // Save created post to data base
+        await post.save();
+
+        res.json(post.comments);
+    } catch (error) {
+        console.error(error.message);
         res.status(500).send('Server error');
     }
 });
