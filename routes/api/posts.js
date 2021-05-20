@@ -36,7 +36,7 @@ async(req, res) => {
 
         res.json(post);
     } catch (error) {
-        console.error(err.message);
+        console.error(error.message);
         res.status(500).send('Server error');
     }
 });
